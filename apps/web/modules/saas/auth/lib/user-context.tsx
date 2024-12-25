@@ -8,9 +8,18 @@ import type { PropsWithChildren } from "react";
 import { createContext, useEffect, useState } from "react";
 
 type User = ApiOutput["auth"]["user"];
-type TeamMembership = NonNullable<
-	NonNullable<ApiOutput["auth"]["user"]>["teamMemberships"]
->[number];
+type TeamMembership = {
+	id: string;
+	role: "MEMBER" | "OWNER";
+	userId: string;
+	teamId: string;
+	isCreator: boolean;
+	team: {
+		id: string;
+		name: string;
+		avatarUrl: string | null;
+	};
+};
 
 type UserContext = {
 	user: User;
@@ -93,39 +102,31 @@ export function UserContextProvider({
 	}, [user, loaded]);
 
 	useEffect(() => {
-		const handleAuthEvent = (event: MessageEvent<AuthEvent>) => {
-			if (JSON.stringify(event.data.user) !== JSON.stringify(user)) {
-				if (event.data.type === "logout") {
-					window.location.href = config.auth.redirectAfterLogout;
-				} else if (event.data.type === "loaded") {
-					setUser(event.data.user);
-				}
+		const onMessage = (event: MessageEvent<AuthEvent>) => {
+			if (event.data.type === "loaded") {
+				setUser(event.data.user);
+			}
+			if (event.data.type === "logout") {
+				window.location.reload();
 			}
 		};
 
-		authBroadcastChannel.addEventListener("message", handleAuthEvent);
-
-		return () =>
-			authBroadcastChannel.removeEventListener("message", handleAuthEvent);
-	}, [user]);
-
-	const updateUser = (info: Partial<User>) => {
-		if (user) {
-			setUser({
-				...user,
-				...info,
-			});
-		}
-	};
+		authBroadcastChannel.addEventListener("message", onMessage);
+		return () => {
+			authBroadcastChannel.removeEventListener("message", onMessage);
+		};
+	}, []);
 
 	return (
 		<userContext.Provider
 			value={{
 				user,
 				reloadUser,
+				updateUser: (info) => {
+					setUser((prev) => (prev ? { ...prev, ...info } : null));
+				},
 				logout,
 				loaded,
-				updateUser,
 				teamMembership: teamMembership ?? null,
 			}}
 		>

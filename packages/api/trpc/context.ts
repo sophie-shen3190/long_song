@@ -1,7 +1,7 @@
 import { type Locale, config } from "@config";
 import type { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
 import { validateSessionToken } from "auth";
-import { TeamMembership, type User, UserSession, db } from "database";
+import { TeamMembership, type User, UserSession, db, UserRoleSchema } from "database";
 import { cookies } from "next/headers";
 import { getSignedUrl } from "storage";
 import { defineAbilitiesFor } from "../modules/auth/abilities";

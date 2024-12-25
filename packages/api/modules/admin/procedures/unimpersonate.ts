@@ -15,6 +15,20 @@ export const unimpersonate = protectedProcedure
 	.input(z.void())
 	.output(z.void())
 	.mutation(async ({ ctx: { session, responseHeaders } }) => {
+		if (!session) {
+			throw new TRPCError({ 
+				code: "UNAUTHORIZED",
+				message: "Session is required for this operation"
+			});
+		}
+
+		if (!responseHeaders) {
+			throw new TRPCError({
+				code: "INTERNAL_SERVER_ERROR",
+				message: "Response headers are required for this operation"
+			});
+		}
+
 		try {
 			const currentSession = await db.userSession.findUnique({
 				where: {
@@ -23,7 +37,10 @@ export const unimpersonate = protectedProcedure
 			});
 
 			if (!currentSession?.impersonatorId) {
-				throw new TRPCError({ code: "NOT_FOUND" });
+				throw new TRPCError({ 
+					code: "NOT_FOUND",
+					message: "No impersonation session found" 
+				});
 			}
 
 			await invalidateSession(session.id);
@@ -31,7 +48,7 @@ export const unimpersonate = protectedProcedure
 			const newSessionToken = generateSessionToken();
 			await createSession(newSessionToken, currentSession.impersonatorId);
 
-			responseHeaders?.append(
+			responseHeaders.append(
 				"Set-Cookie",
 				createSessionCookie(newSessionToken).serialize(),
 			);
