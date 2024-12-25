@@ -1,0 +1,5 @@
+/* components/AudioVisualizer/index.module.css */
+.canvas {
+  @apply fixed inset-0 -z-20 w-full h-full;
+  background: transparent;
+}

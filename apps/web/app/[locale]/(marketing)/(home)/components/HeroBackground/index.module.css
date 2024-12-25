@@ -1,0 +1,125 @@
+/* components/HeroBackground/index.module.css */
+.heroBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  overflow: hidden;
+  z-index: -1;
+}
+
+.gradientOrbs {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  filter: blur(100px);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.orb {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  opacity: 0.5;
+  animation: float 20s ease-in-out infinite;
+  animation-delay: calc(var(--index) * -7s);
+}
+
+.orb:nth-child(1) {
+  top: -100px;
+  left: 20%;
+  background: radial-gradient(circle, rgba(157, 78, 221, 0.6), transparent 70%);
+}
+
+.orb:nth-child(2) {
+  top: 20%;
+  right: -100px;
+  background: radial-gradient(circle, rgba(226, 96, 219, 0.6), transparent 70%);
+}
+
+.orb:nth-child(3) {
+  bottom: -100px;
+  left: 30%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.6), transparent 70%);
+}
+
+@keyframes float {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, 50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, -30px) scale(0.9);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+.grid {
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  top: -50%;
+  left: -50%;
+  transform: rotate(30deg);
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+.gridLine {
+  position: absolute;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  animation: gridPulse 3s ease-in-out infinite;
+}
+
+.gridLine:nth-child(10n) {
+  width: 2px;
+  opacity: 0.2;
+}
+
+@keyframes gridPulse {
+  0% {
+    opacity: 0.1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+  100% {
+    opacity: 0.1;
+  }
+}
+
+/* 替换 @for 循环，手动设置网格线位置 */
+.gridLine:nth-child(1) { left: 0%; }
+.gridLine:nth-child(2) { left: 5%; }
+.gridLine:nth-child(3) { left: 10%; }
+.gridLine:nth-child(4) { left: 15%; }
+.gridLine:nth-child(5) { left: 20%; }
+.gridLine:nth-child(6) { left: 25%; }
+.gridLine:nth-child(7) { left: 30%; }
+.gridLine:nth-child(8) { left: 35%; }
+.gridLine:nth-child(9) { left: 40%; }
+.gridLine:nth-child(10) { left: 45%; }
+.gridLine:nth-child(11) { left: 50%; }
+.gridLine:nth-child(12) { left: 55%; }
+.gridLine:nth-child(13) { left: 60%; }
+.gridLine:nth-child(14) { left: 65%; }
+.gridLine:nth-child(15) { left: 70%; }
+.gridLine:nth-child(16) { left: 75%; }
+.gridLine:nth-child(17) { left: 80%; }
+.gridLine:nth-child(18) { left: 85%; }
+.gridLine:nth-child(19) { left: 90%; }
+.gridLine:nth-child(20) { left: 95%; }
