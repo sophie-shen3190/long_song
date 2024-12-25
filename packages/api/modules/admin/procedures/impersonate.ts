@@ -9,6 +9,7 @@ import { db } from "database";
 import { logger } from "logs";
 import { z } from "zod";
 import { adminProcedure } from "../../../trpc/base";
+import type { Context } from "../../../trpc/context";
 
 export const impersonate = adminProcedure
 	.input(
@@ -18,7 +19,20 @@ export const impersonate = adminProcedure
 	)
 	.output(z.void())
 	.mutation(
-		async ({ input: { userId }, ctx: { user, session, responseHeaders } }) => {
+		async ({
+			input: { userId },
+			ctx: { user, session, responseHeaders },
+		}: {
+			input: { userId: string };
+			ctx: Context;
+		}) => {
+			if (!responseHeaders) {
+				throw new TRPCError({
+					code: "INTERNAL_SERVER_ERROR",
+					message: "Response headers are required for this operation",
+				});
+			}
+
 			// check if user with id exists
 			const userExists = await db.user.findUnique({
 				where: {
@@ -27,7 +41,10 @@ export const impersonate = adminProcedure
 			});
 
 			if (!userExists) {
-				throw new TRPCError({ code: "NOT_FOUND" });
+				throw new TRPCError({ 
+					code: "NOT_FOUND",
+					message: "User not found",
+				});
 			}
 
 			try {
@@ -38,7 +55,7 @@ export const impersonate = adminProcedure
 
 				await invalidateSession(session.id);
 
-				responseHeaders?.append(
+				responseHeaders.append(
 					"Set-Cookie",
 					createSessionCookie(newSessionToken).serialize(),
 				);
@@ -47,6 +64,7 @@ export const impersonate = adminProcedure
 
 				throw new TRPCError({
 					code: "INTERNAL_SERVER_ERROR",
+					message: "Failed to create impersonation session",
 				});
 			}
 		},

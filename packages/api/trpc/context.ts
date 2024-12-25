@@ -7,7 +7,7 @@ import { getSignedUrl } from "storage";
 import { defineAbilitiesFor } from "../modules/auth/abilities";
 
 export async function createContext(
-	params?: FetchCreateContextFnOptions | { isAdmin?: boolean },
+	params?: FetchCreateContextFnOptions | { isAdmin?: boolean; resHeaders?: Headers },
 ): Promise<{
 	user: any;
 	session: any;
@@ -15,6 +15,7 @@ export async function createContext(
 	abilities: any;
 	locale: Locale;
 	isAdmin: boolean;
+	responseHeaders?: Headers;
 }> {
 	const cookieStore = await cookies();
 	const sessionId =
@@ -64,6 +65,7 @@ export async function createContext(
 		abilities,
 		locale,
 		isAdmin: params && "isAdmin" in params ? params.isAdmin : false,
+		responseHeaders: params && "resHeaders" in params ? params.resHeaders : undefined,
 	};
 }
 
