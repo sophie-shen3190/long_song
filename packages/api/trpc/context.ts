@@ -1,7 +1,7 @@
 import { type Locale, config } from "@config";
 import type { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
 import { validateSessionToken } from "auth";
-import { TeamMembership, User, UserSession, UserRoleSchema, db } from "database";
+import { TeamMembership, type User, UserSession, db } from "database";
 import { cookies } from "next/headers";
 import { getSignedUrl } from "storage";
 import { defineAbilitiesFor } from "../modules/auth/abilities";
@@ -9,10 +9,22 @@ import type { z } from "zod";
 
 type ContextParams = FetchCreateContextFnOptions | { isAdmin?: boolean; resHeaders?: Headers };
 
+type ContextUser = {
+	name: string | null;
+	email: string;
+	id: string;
+	role: "USER" | "ADMIN";
+	emailVerified: boolean;
+	avatarUrl: string | null;
+	createdAt: Date;
+	hashedPassword: string | null;
+	onboardingComplete: boolean;
+};
+
 export async function createContext(
 	params?: ContextParams,
 ): Promise<{
-	user: User | null;
+	user: ContextUser | null;
 	session: UserSession | null;
 	teamMemberships: (TeamMembership & { team: { id: string; name: string; avatarUrl: string | null } })[] | null;
 	abilities: ReturnType<typeof defineAbilitiesFor>;
@@ -62,7 +74,7 @@ export async function createContext(
 		config.i18n.defaultLocale) as Locale;
 
 	return {
-		user,
+		user: user as ContextUser | null,
 		session,
 		teamMemberships,
 		abilities,
