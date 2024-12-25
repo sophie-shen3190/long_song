@@ -26,6 +26,13 @@ export const impersonate = adminProcedure
 			input: { userId: string };
 			ctx: Context;
 		}) => {
+			if (!user || !session) {
+				throw new TRPCError({ 
+					code: "UNAUTHORIZED",
+					message: "User must be authenticated for this operation",
+				});
+			}
+
 			if (!responseHeaders) {
 				throw new TRPCError({
 					code: "INTERNAL_SERVER_ERROR",
