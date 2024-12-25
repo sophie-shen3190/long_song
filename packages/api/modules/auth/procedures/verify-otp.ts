@@ -27,6 +27,13 @@ export const verifyOtp = publicProcedure
 					code,
 				});
 
+				if (!userId) {
+					throw new TRPCError({
+						code: "BAD_REQUEST",
+						message: "Invalid or expired one-time password",
+					});
+				}
+
 				const user = await db.user.findUnique({
 					where: {
 						id: userId,
@@ -36,6 +43,7 @@ export const verifyOtp = publicProcedure
 				if (!user) {
 					throw new TRPCError({
 						code: "NOT_FOUND",
+						message: "User not found",
 					});
 				}
 
@@ -55,13 +63,11 @@ export const verifyOtp = publicProcedure
 					"Set-Cookie",
 					createSessionCookie(sessionToken).serialize(),
 				);
-			} catch (e) {
-				logger.error(e);
 
-				throw new TRPCError({
-					code: "BAD_REQUEST",
-					message: "Invalid one-time password",
-				});
+				return { success: true };
+			} catch (error) {
+				logger.error("Error verifying one-time password", error);
+				throw error;
 			}
 		},
 	);
