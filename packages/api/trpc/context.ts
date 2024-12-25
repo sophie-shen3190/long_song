@@ -14,7 +14,7 @@ export async function createContext(
 ): Promise<{
 	user: User | null;
 	session: UserSession | null;
-	teamMemberships: (TeamMembership & { team: { avatarUrl: string | null } })[] | null;
+	teamMemberships: (TeamMembership & { team: { id: string; name: string; avatarUrl: string | null } })[] | null;
 	abilities: ReturnType<typeof defineAbilitiesFor>;
 	locale: Locale;
 	isAdmin: boolean;
@@ -38,7 +38,7 @@ export async function createContext(
 							team: true,
 						},
 					})
-				).map(async (membership: TeamMembership & { team: { avatarUrl: string | null } }) => ({
+				).map(async (membership: TeamMembership & { team: { id: string; name: string; avatarUrl: string | null } }) => ({
 					...membership,
 					team: {
 						...membership.team,
