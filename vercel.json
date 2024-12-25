@@ -1,9 +1,17 @@
 {
   "version": 2,
-  "buildCommand": "cd apps/web && pnpm install && pnpm build",
-  "outputDirectory": "apps/web/.next",
-  "installCommand": "pnpm install",
-  "framework": "nextjs",
+  "builds": [
+    {
+      "src": "apps/web/package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "apps/web/$1"
+    }
+  ],
   "env": {
     "AI_MUSIC_API_TOKEN": "sk-b37bf1237a3b45788c9569ebccc03a88",
     "AI_MUSIC_USER_ID": "413564",
