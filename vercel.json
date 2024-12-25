@@ -4,5 +4,12 @@
   "devCommand": "pnpm dev",
   "installCommand": "pnpm install",
   "framework": "nextjs",
-  "outputDirectory": "apps/web/.next"
+  "outputDirectory": "apps/web/.next",
+  "env": {
+    "AI_MUSIC_API_TOKEN": "sk-b37bf1237a3b45788c9569ebccc03a88",
+    "AI_MUSIC_USER_ID": "413564",
+    "AI_MUSIC_BASE_URL": "https://dzwlai.com/apiuser/_open/suno",
+    "NEXT_PUBLIC_SUPABASE_URL": "https://supabase.com/dashboard/sign-in",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "Lq,Ezu#_s$j9~QE"
+  }
 }
