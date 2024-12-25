@@ -1,5 +1,5 @@
 import { type RandomReader, generateRandomString } from "@oslojs/crypto/random";
-import type { UserOneTimePasswordTypeType } from "database";
+import type { UserOneTimePasswordTypeType, UserVerificationToken } from "database";
 import { db } from "database";
 
 const random: RandomReader = {
@@ -23,7 +23,7 @@ export const generateVerificationToken = async ({
 	});
 
 	if (storedUserTokens.length > 0) {
-		const reusableStoredToken = storedUserTokens.find((token) => {
+		const reusableStoredToken = storedUserTokens.find((token: UserVerificationToken) => {
 			return new Date(Number(token.expires) - expireDuration / 2) >= new Date();
 		});
 		if (reusableStoredToken) {
@@ -53,20 +53,25 @@ export const validateVerificationToken = async ({
 	});
 
 	if (!storedToken) {
-		throw new Error("Invalid token");
+		return false;
+	}
+
+	if (new Date(storedToken.expires) < new Date()) {
+		await db.userVerificationToken.delete({
+			where: {
+				id: token,
+			},
+		});
+		return false;
 	}
 
 	await db.userVerificationToken.delete({
 		where: {
-			id: storedToken.id,
+			id: token,
 		},
 	});
 
-	if (storedToken.expires < new Date()) {
-		throw new Error("Expired token");
-	}
-
-	return storedToken.userId;
+	return true;
 };
 
 export const generateOneTimePassword = async ({
@@ -80,34 +85,27 @@ export const generateOneTimePassword = async ({
 	identifier: string;
 	expireDuration?: number;
 }) => {
-	const storedUserTokens = await db.userOneTimePassword.findMany({
+	const code = await generateRandomString(random, 6, numberAlphabet);
+
+	await db.userOneTimePassword.deleteMany({
 		where: {
 			userId,
+			type,
+			identifier,
 		},
 	});
-
-	if (storedUserTokens.length > 0) {
-		const reusableStoredToken = storedUserTokens.find((token) => {
-			return new Date(Number(token.expires) - expireDuration) >= new Date();
-		});
-		if (reusableStoredToken) {
-			return reusableStoredToken.code;
-		}
-	}
-
-	const otp = generateRandomString(random, numberAlphabet, 6);
 
 	await db.userOneTimePassword.create({
 		data: {
-			code: otp,
-			type,
-			identifier,
+			code,
 			expires: new Date(new Date().getTime() + expireDuration),
 			userId,
+			type,
+			identifier,
 		},
 	});
 
-	return otp;
+	return code;
 };
 
 export const validateOneTimePassword = async ({
@@ -119,7 +117,7 @@ export const validateOneTimePassword = async ({
 	type: UserOneTimePasswordTypeType;
 	identifier?: string;
 }) => {
-	const storedOtp = await db.userOneTimePassword.findFirst({
+	const storedCode = await db.userOneTimePassword.findFirst({
 		where: {
 			code,
 			type,
@@ -127,19 +125,26 @@ export const validateOneTimePassword = async ({
 		},
 	});
 
-	if (!storedOtp) {
-		throw new Error("Invalid token");
+	if (!storedCode) {
+		return null;
 	}
+
+	if (new Date(storedCode.expires) < new Date()) {
+		await db.userOneTimePassword.delete({
+			where: {
+				id: storedCode.id,
+			},
+		});
+		return null;
+	}
+
+	const { userId } = storedCode;
 
 	await db.userOneTimePassword.delete({
 		where: {
-			id: storedOtp.id,
+			id: storedCode.id,
 		},
 	});
 
-	if (storedOtp.expires < new Date()) {
-		throw new Error("Expired token");
-	}
-
-	return storedOtp.userId;
+	return userId;
 };
