@@ -1,7 +1,7 @@
 import { type Locale, config } from "@config";
 import type { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
 import { validateSessionToken } from "auth";
-import { TeamMembership, db } from "database";
+import { TeamMembership, User, Session, db } from "database";
 import { cookies } from "next/headers";
 import { getSignedUrl } from "storage";
 import { defineAbilitiesFor } from "../modules/auth/abilities";
@@ -11,10 +11,10 @@ type ContextParams = FetchCreateContextFnOptions | { isAdmin?: boolean; resHeade
 export async function createContext(
 	params?: ContextParams,
 ): Promise<{
-	user: any;
-	session: any;
+	user: User | null;
+	session: Session | null;
 	teamMemberships: (TeamMembership & { team: { avatarUrl: string | null } })[] | null;
-	abilities: any;
+	abilities: ReturnType<typeof defineAbilitiesFor>;
 	locale: Locale;
 	isAdmin: boolean;
 	responseHeaders?: Headers;
