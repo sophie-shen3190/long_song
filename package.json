@@ -11,7 +11,8 @@
 		"db:generate": "turbo db:generate",
 		"db:studio": "pnpm --filter database run db:studio",
 		"mail:preview": "pnpm --filter mail run preview",
-		"e2e": "pnpm --filter web e2e"
+		"e2e": "pnpm --filter web e2e",
+		"postinstall": "pnpm db:generate"
 	},
 	"engines": {
 		"node": ">=20"
