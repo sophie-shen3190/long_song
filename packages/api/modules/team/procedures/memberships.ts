@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { TeamMembership, TeamMembershipSchema, UserSchema, db } from "database";
+import { TeamMembership, TeamMembershipSchema, User, UserSchema, db } from "database";
 import { z } from "zod";
 import { protectedProcedure } from "../../../trpc/base";
 
@@ -48,7 +48,7 @@ export const memberships = protectedProcedure
 		return (
 			memberships.map((m: TeamMembership) => ({
 				...m,
-				user: users.find((u) => u.id === m.userId),
+				user: users.find((u: User) => u.id === m.userId),
 			})) ?? []
 		);
 	});
