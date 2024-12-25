@@ -6,8 +6,10 @@ import { cookies } from "next/headers";
 import { getSignedUrl } from "storage";
 import { defineAbilitiesFor } from "../modules/auth/abilities";
 
+type ContextParams = FetchCreateContextFnOptions | { isAdmin?: boolean; resHeaders?: Headers };
+
 export async function createContext(
-	params?: FetchCreateContextFnOptions | { isAdmin?: boolean; resHeaders?: Headers },
+	params?: ContextParams,
 ): Promise<{
 	user: any;
 	session: any;
@@ -64,7 +66,7 @@ export async function createContext(
 		teamMemberships,
 		abilities,
 		locale,
-		isAdmin: params && "isAdmin" in params ? params.isAdmin : false,
+		isAdmin: !!(params && "isAdmin" in params && params.isAdmin),
 		responseHeaders: params && "resHeaders" in params ? params.resHeaders : undefined,
 	};
 }
