@@ -87,7 +87,7 @@ export const generateOneTimePassword = async ({
 	identifier: string;
 	expireDuration?: number;
 }) => {
-	const code = await generateRandomString(random, numberAlphabet, "6");
+	const code = await generateRandomString(random, numberAlphabet, 6);
 
 	await db.userOneTimePassword.deleteMany({
 		where: {
