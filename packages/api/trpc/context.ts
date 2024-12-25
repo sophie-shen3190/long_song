@@ -1,14 +1,21 @@
 import { type Locale, config } from "@config";
 import type { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
 import { validateSessionToken } from "auth";
-import { db } from "database";
+import { TeamMembership, db } from "database";
 import { cookies } from "next/headers";
 import { getSignedUrl } from "storage";
 import { defineAbilitiesFor } from "../modules/auth/abilities";
 
 export async function createContext(
 	params?: FetchCreateContextFnOptions | { isAdmin?: boolean },
-) {
+): Promise<{
+	user: any;
+	session: any;
+	teamMemberships: (TeamMembership & { team: { avatarUrl: string | null } })[] | null;
+	abilities: any;
+	locale: Locale;
+	isAdmin: boolean;
+}> {
 	const cookieStore = await cookies();
 	const sessionId =
 		cookieStore.get(config.auth.sessionCookieName)?.value ?? null;
@@ -27,7 +34,7 @@ export async function createContext(
 							team: true,
 						},
 					})
-				).map(async (membership) => ({
+				).map(async (membership: TeamMembership & { team: { avatarUrl: string | null } }) => ({
 					...membership,
 					team: {
 						...membership.team,
@@ -53,11 +60,9 @@ export async function createContext(
 	return {
 		user,
 		session,
-		locale,
-		abilities,
 		teamMemberships,
-		responseHeaders:
-			params && "resHeaders" in params ? params.resHeaders : undefined,
+		abilities,
+		locale,
 		isAdmin: params && "isAdmin" in params ? params.isAdmin : false,
 	};
 }
