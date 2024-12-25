@@ -43,18 +43,28 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/dzwlai/:path*',
-        destination: 'https://file.dzwlai.com/:path*'
+        destination: 'https://file.dzwlai.com/:path*',
+        basePath: false
       }
     ]
   },
-  // 添加以下配置可能有助于解决问题
+  // 添加以下配置可能有助于解决跨域问题
   async headers() {
     return [
       {
         source: '/dzwlai/:path*',
         headers: [
           { key: 'Access-Control-Allow-Origin', value: '*' },
-          { key: 'Access-Control-Allow-Methods', value: 'GET' }
+          { key: 'Access-Control-Allow-Methods', value: 'GET, POST, OPTIONS' },
+          { key: 'Access-Control-Allow-Headers', value: 'Content-Type, x-token, x-userId' }
+        ]
+      },
+      {
+        source: '/api/music/:path*',
+        headers: [
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET, POST, OPTIONS' },
+          { key: 'Access-Control-Allow-Headers', value: 'Content-Type, x-token, x-userId' }
         ]
       }
     ]
