@@ -22,6 +22,13 @@ export const verifyToken = publicProcedure
 				token,
 			});
 
+			if (!userId) {
+				throw new TRPCError({
+					code: "BAD_REQUEST",
+					message: "Invalid or expired token",
+				});
+			}
+
 			const user = await db.user.findUnique({
 				where: {
 					id: userId,
@@ -31,6 +38,7 @@ export const verifyToken = publicProcedure
 			if (!user) {
 				throw new TRPCError({
 					code: "NOT_FOUND",
+					message: "User not found",
 				});
 			}
 
@@ -50,12 +58,10 @@ export const verifyToken = publicProcedure
 				"Set-Cookie",
 				createSessionCookie(sessionToken).serialize(),
 			);
-		} catch (e) {
-			logger.error(e);
 
-			throw new TRPCError({
-				code: "BAD_REQUEST",
-				message: "Invalid token",
-			});
+			return { success: true };
+		} catch (error) {
+			logger.error("Error verifying token", error);
+			throw error;
 		}
 	});

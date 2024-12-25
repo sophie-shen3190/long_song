@@ -45,7 +45,7 @@ export const validateVerificationToken = async ({
 	token,
 }: {
 	token: string;
-}) => {
+}): Promise<string | null> => {
 	const storedToken = await db.userVerificationToken.findUnique({
 		where: {
 			id: token,
@@ -53,7 +53,7 @@ export const validateVerificationToken = async ({
 	});
 
 	if (!storedToken) {
-		return false;
+		return null;
 	}
 
 	if (new Date(storedToken.expires) < new Date()) {
@@ -62,8 +62,10 @@ export const validateVerificationToken = async ({
 				id: token,
 			},
 		});
-		return false;
+		return null;
 	}
+
+	const { userId } = storedToken;
 
 	await db.userVerificationToken.delete({
 		where: {
@@ -71,7 +73,7 @@ export const validateVerificationToken = async ({
 		},
 	});
 
-	return true;
+	return userId;
 };
 
 export const generateOneTimePassword = async ({
