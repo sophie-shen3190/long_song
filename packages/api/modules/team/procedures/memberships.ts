@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { TeamMembershipSchema, UserSchema, db } from "database";
+import { TeamMembership, TeamMembershipSchema, UserSchema, db } from "database";
 import { z } from "zod";
 import { protectedProcedure } from "../../../trpc/base";
 
@@ -33,7 +33,7 @@ export const memberships = protectedProcedure
 		});
 
 		const userIds =
-			memberships.map((m) => m.userId).filter((id): id is string => !!id) ?? [];
+			memberships.map((m: TeamMembership) => m.userId).filter((id): id is string => !!id) ?? [];
 
 		const users = await db.user.findMany({
 			where: {
@@ -44,7 +44,7 @@ export const memberships = protectedProcedure
 		});
 
 		return (
-			memberships.map((m) => ({
+			memberships.map((m: TeamMembership) => ({
 				...m,
 				user: users.find((u) => u.id === m.userId),
 			})) ?? []
